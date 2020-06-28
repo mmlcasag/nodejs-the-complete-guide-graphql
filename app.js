@@ -53,30 +53,7 @@ app.use((error, req, res, next) => {
 
 mongoose.connect('mongodb+srv://admin:admin@mmlcasag-cvtew.mongodb.net/udemy-rest-api', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
     .then(result => {
-        const server = app.listen(8080);
-        
-        // WEBSOCKETS & Socket.io
-        //
-        // how to install it?
-        // npm install --save socket.io
-        //
-        // how to use it?
-        // when we start our server
-        // we also want to establish a websocket connection
-        // the line below returns a function which receives as an argument
-        // the http server defined above
-        // so how do we do that?
-        // we need to create a const and pass it as an argument to the socket.io
-        const io = require('./sockets').init(server);
-        // this sets up socket.io
-        // and here we can see that websockets builds up upon http
-        // that's why we need to pass the http server as an argument
-
-        // now we need to register the event listeners
-        // the first one being whenever a client connects on our server
-        io.on('connection', socket => {
-            console.log('Client connected');
-        });
+        app.listen(8080);
     })
     .catch(err => {
         console.log(err);

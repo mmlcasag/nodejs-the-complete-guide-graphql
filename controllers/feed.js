@@ -3,7 +3,6 @@ const fs = require('fs');
 
 const { validationResult } = require("express-validator");
 
-const io = require('../sockets');
 const Post = require('../models/post');
 const User = require('../models/user');
 const errorUtils = require('../utils/error');
@@ -110,25 +109,6 @@ module.exports.postPost = async (req, res, next) => {
 
         await user.save();
         
-        // now let's say after creating the post we want to inform all connected clients
-        // that the post was created
-        // we need to retrieve the websockets connection and emit the message
-        // --> emit(): sends the message to all connected clients
-        // --> broadcast(): sends the message to all connected clients, except the one who originated this request
-        // so we need to define a channel, and you can name it whatever you like, i chose posts
-        // and then you define the content you want to send, i chose an object with the post and also an action
-        io.getIO().emit('posts', {
-            action: 'create',
-            post: { 
-                ...post._doc,
-                creator: {
-                    _id: user._id,
-                    name: user.name
-                }
-            }
-        });
-        // now we need to adjust our client-side code to handle new messages on this posts channel
-
         res.status(201).json({
             message: 'Post created successfully',
             post: post,
@@ -186,14 +166,6 @@ module.exports.putPost = async (req, res, next) => {
 
         await post.save();
 
-        // we also want to use websockets after updating posts
-        // here we didn't need to tweak our post object
-        // because it already has the populate() creator on the loadById
-        io.getIO().emit('posts', {
-            action: 'update',
-            post: post
-        });
-
         return res.status(200).json({
             message: 'Post updated successfully',
             post: post
@@ -228,13 +200,6 @@ module.exports.deletePost = async (req, res, next) => {
         user.posts.pull(postId);
         
         await user.save();
-        
-        // we also want to use websockets after deleting posts
-        // here since we are deleting we are not passing the entire post object but rather just the id
-        io.getIO().emit('posts', {
-            action: 'delete',
-            post: postId
-        });
         
         res.status(200).json({
             message: 'Post deleted successfully'
