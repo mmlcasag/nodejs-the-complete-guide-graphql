@@ -50,10 +50,22 @@ app.use((req, res, next) => {
     next();
 });
 
+// this is our only route: /graphql
+// we use app.use so we can use our visual tool graphiql which makes a GET request
+// and also for our API to work, which requires always POST requests
 app.use('/graphql', graphqlHttp({
+    // this is required
     schema: graphqlSchema,
+    // this is required
     rootValue: graphqlResolver,
+    // visual tool
+    // here we specify whether or not our project should use the visual tool
+    // it is interesting because it automatically creates a documentation of all our queries and mutations
+    // this is not required
     graphiql: true,
+    // error handling
+    // here we specify how the error object should look like
+    // this is not required
     customFormatErrorFn(err) {
         if (!err.originalError) {
             return err;
