@@ -3,6 +3,7 @@ const validator = require('validator');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
+const Post = require('../models/post');
 const { create } = require('../models/user');
 
 module.exports = {
@@ -82,6 +83,49 @@ module.exports = {
         return {
             userId: user._id.toString(),
             token: token
+        }
+    }
+
+
+    ,
+
+
+    createPost: async function({ postInput }, req) {
+        const errors = [];
+
+        if (validator.isEmpty(postInput.title)) {
+            errors.push({ message: 'Title is required'});
+        }
+        if (!validator.isLength(postInput.title, { min: 5 })) {
+            errors.push({ message: 'Title must be at least 5 characters long'});
+        }
+        if (validator.isEmpty(postInput.content)) {
+            errors.push({ message: 'Content is required'});
+        }
+        if (!validator.isLength(postInput.content, { min: 5 })) {
+            errors.push({ message: 'Content must be at least 5 characters long'});
+        }
+
+        if (errors.length > 0) {
+            const error = new Error('Invalid input');
+            error.data = errors;
+            error.code = 422;
+            throw error;
+        }
+
+        const post = new Post({
+            title: postInput.title,
+            content: postInput.content,
+            imageUrl: postInput.imageUrl
+        });
+
+        const createdPost = await post.save();
+        // TODO: add post to user's posts
+        return {
+            ...createdPosts._doc,
+            _id: createdPost._id.toString(),
+            createdAt: createdPost.createdAt.toISOString(),
+            updatedAt: createdPost.updatedAt.toISOString()
         }
     }
 }
