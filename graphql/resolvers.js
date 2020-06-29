@@ -133,15 +133,15 @@ module.exports = {
             imageUrl: postInput.imageUrl,
             creator: user
         });
-        
+
         const createdPost = await post.save();
         
         user.posts.push(createdPost);
 
         await user.save();
-
+        
         return {
-            ...createdPosts._doc,
+            ...createdPost._doc,
             _id: createdPost._id.toString(),
             createdAt: createdPost.createdAt.toISOString(),
             updatedAt: createdPost.updatedAt.toISOString()
