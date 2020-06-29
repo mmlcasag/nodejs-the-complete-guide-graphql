@@ -91,6 +91,20 @@ module.exports = {
 
 
     createPost: async function({ postInput }, req) {
+        if (!req.isAuth) {
+            const error = new Error('Not authenticated');
+            error.code = 401;
+            throw error;
+        }
+        
+        const user = await User.findById(req.userId);
+
+        if (!user) {
+            const error = new Error('Invalid user');
+            error.code = 401;
+            throw error;
+        }
+
         const errors = [];
 
         if (validator.isEmpty(postInput.title)) {
@@ -116,11 +130,16 @@ module.exports = {
         const post = new Post({
             title: postInput.title,
             content: postInput.content,
-            imageUrl: postInput.imageUrl
+            imageUrl: postInput.imageUrl,
+            creator: user
         });
-
+        
         const createdPost = await post.save();
-        // TODO: add post to user's posts
+        
+        user.posts.push(createdPost);
+
+        await user.save();
+
         return {
             ...createdPosts._doc,
             _id: createdPost._id.toString(),

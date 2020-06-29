@@ -12,6 +12,8 @@ const graphqlHttp = require('express-graphql');
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
 
+const authMiddleware = require('./middlewares/auth');
+
 const app = express();
 
 const storage = multer.diskStorage({
@@ -49,6 +51,9 @@ app.use((req, res, next) => {
 
     next();
 });
+
+// how to validate the token
+app.use(authMiddleware);
 
 // this is our only route: /graphql
 // we use app.use so we can use our visual tool graphiql which makes a GET request
