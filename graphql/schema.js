@@ -21,8 +21,8 @@ module.exports = buildSchema(`
     }
 
     type AuthData {
-        userid: String!
-        token String!
+        userId: String!
+        token: String!
     }
 
     input UserInputData {
