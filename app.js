@@ -1,3 +1,6 @@
+// npm install graphql --save
+// npm install express-graphql --save
+
 const path = require('path');
 
 const express = require('express');
@@ -5,9 +8,9 @@ const bodyparser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
 
-const authRoutes = require('./routes/auth');
-const feedRoutes = require('./routes/feed');
-const userRoutes = require('./routes/user');
+const graphqlHttp = require('express-graphql');
+const graphqlSchema = require('./graphql/schema');
+const graphqlResolver = require('./graphql/resolvers');
 
 const app = express();
 
@@ -39,9 +42,10 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/auth', authRoutes);
-app.use('/feed', feedRoutes);
-app.use('/user', userRoutes);
+app.use('/graphql', graphqlHttp({
+    schema: graphqlSchema,
+    rootValue: graphqlResolver
+}));
 
 app.use((error, req, res, next) => {
     const status = error.status || 500;
