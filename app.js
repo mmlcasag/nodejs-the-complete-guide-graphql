@@ -2,7 +2,6 @@
 // npm install express-graphql --save
 
 const path = require('path');
-const fs = require('fs');
 
 const express = require('express');
 const bodyparser = require('body-parser');
@@ -14,6 +13,7 @@ const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
 
 const authMiddleware = require('./middlewares/auth');
+const fileUtils = require('./utils/file');
 
 const app = express();
 
@@ -73,15 +73,9 @@ app.put('/post-image', (req, res, next) => {
     }
 
     if (req.body.oldPath) {
-        filePath = path.join(__dirname, '..', req.body.oldPath);
-        
-        fs.unlink(filePath, err => {
-            if (err) {
-                console.log(err);
-            }
-        });
+        fileUtils.clearImage(req.body.oldPath);
     }
-
+    
     return res.status(201).json({ 
         message: 'File uploaded successfully', 
         filePath: req.file.path.replace("\\" ,"/")
@@ -118,14 +112,6 @@ app.use('/graphql', graphqlHttp({
         }
     }
 }));
-
-app.use((error, req, res, next) => {
-    const status = error.status || 500;
-    const message = error.message;
-    const details = error.details || null;
-    
-    res.status(status).json({ message: message, details: details });
-});
 
 mongoose.connect('mongodb+srv://admin:admin@mmlcasag-cvtew.mongodb.net/udemy-rest-api', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
     .then(result => {

@@ -1,7 +1,5 @@
 const jwt = require('jsonwebtoken');
 
-const errorUtils = require('../utils/error');
-
 module.exports = (req, res, next) => {
     const header = req.headers.authorization;
     
