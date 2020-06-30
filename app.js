@@ -2,6 +2,7 @@
 // npm install express-graphql --save
 
 const path = require('path');
+const fs = require('fs');
 
 const express = require('express');
 const bodyparser = require('body-parser');
@@ -54,6 +55,38 @@ app.use((req, res, next) => {
 
 // how to validate the token
 app.use(authMiddleware);
+
+// uploading files
+// graphql only supports json
+// so the way to go is to use a rest api to upload the file
+// then return the path
+// then request again via graphql passing the path as the argument
+app.put('/post-image', (req, res, next) => {
+    if (!req.isAuth) {
+        const error = new Error('Not authenticated');
+        error.code = 401;
+        throw error;
+    }
+
+    if (!req.file) {
+        return res.status(200).json({ message: 'No file provided' });
+    }
+
+    if (req.body.oldPath) {
+        filePath = path.join(__dirname, '..', req.body.oldPath);
+        
+        fs.unlink(filePath, err => {
+            if (err) {
+                console.log(err);
+            }
+        });
+    }
+
+    return res.status(201).json({ 
+        message: 'File uploaded successfully', 
+        filePath: req.file.path.replace("\\" ,"/")
+    });
+});
 
 // this is our only route: /graphql
 // we use app.use so we can use our visual tool graphiql which makes a GET request
